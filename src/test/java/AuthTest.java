@@ -54,6 +54,5 @@ public class AuthTest {
         $$("button").find(Condition.text("Продолжить")).click();
         $("[data-test-id='error-notification']").shouldHave(Condition.text("Неверно указан логин или пароль")).shouldBe(Condition.visible);
     }
-
 }
 

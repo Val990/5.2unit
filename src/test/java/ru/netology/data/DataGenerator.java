@@ -28,6 +28,7 @@ public class DataGenerator {
         given()
                 .spec(requestSpec)
                 .body(info)
+                .when()
                 .post("/api/system/users")
                 .then()
                 .statusCode(200);
@@ -50,5 +51,4 @@ public class DataGenerator {
                 setUpAll(blockedUser);
                 return blockedUser;
     }
-
 }
