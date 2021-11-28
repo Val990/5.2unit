@@ -5,50 +5,66 @@ import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
-import lombok.experimental.UtilityClass;
-
-import ru.netology.info.UserInfo;
-
+import lombok.Value;
 import java.util.Locale;
 
 import static io.restassured.RestAssured.given;
 
-@UtilityClass
 public class DataGenerator {
-    private Faker faker = new Faker(new Locale("en"));
-    private static RequestSpecification requestSpec = new RequestSpecBuilder()
-                .setBaseUri("http://localhost")
-                .setPort(9999)
-                .setAccept(ContentType.JSON)
-                .setContentType(ContentType.JSON)
-                .log(LogDetail.ALL)
-                .build();
 
-    static void setUpAll(UserInfo info) {
+    private static RequestSpecification requestSpec = new RequestSpecBuilder()
+            .setBaseUri("http://localhost")
+            .setPort(9999)
+            .setAccept(ContentType.JSON)
+            .setContentType(ContentType.JSON)
+            .log(LogDetail.ALL)
+            .build();
+
+    private static void sendRequest(User userInfo) {
         given()
                 .spec(requestSpec)
-                .body(info)
+                .body(userInfo)
                 .when()
                 .post("/api/system/users")
                 .then()
                 .statusCode(200);
     }
 
-    public UserInfo userActive() {
-        UserInfo activeUser = new UserInfo(
-                faker.name().username(),
-                faker.internet().password(),
-                "active");
-                setUpAll(activeUser);
-                return activeUser;
+    private DataGenerator() {
     }
 
-    public UserInfo userBlocked() {
-        UserInfo blockedUser = new UserInfo(
-                faker.name().username(),
-                faker.internet().password(),
-                "blocked");
-                setUpAll(blockedUser);
-                return blockedUser;
+    private static Faker faker = new Faker(new Locale("en"));
+
+    public static String getRandomLogin() {
+        String login = faker.name().username();
+        return login;
+    }
+
+    public static String getRandomPassword() {
+        String password = faker.internet().password();
+        return password;
+    }
+
+    public static class Registration {
+        private Registration() {
+        }
+
+        public static User getUser(String status) {
+            User userInfo = new User(getRandomLogin(), getRandomPassword(), status);
+            return userInfo;
+        }
+
+        public static User getRegisteredUser(String status) {
+            User registeredUser = getUser(status);
+            sendRequest(registeredUser);
+            return registeredUser;
+        }
+    }
+
+        @Value
+        public static class User {
+            String login;
+            String password;
+            String status;
     }
 }
